@@ -1,17 +1,16 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
 import 'package:clev_ai/features/auth/models/user_profile.dart';
 import 'package:clev_ai/features/cart/services/cart_service.dart';
 import 'package:clev_ai/features/products/services/favorite_service.dart';
 import 'package:clev_ai/features/orders/services/history_service.dart';
 import 'package:clev_ai/features/orders/services/order_service.dart';
-import 'package:clev_ai/data/local/secure_storage_service.dart';
 import 'package:clev_ai/data/remote/supabase_service.dart';
 import 'package:clev_ai/core/theme/app_theme.dart';
 import 'package:clev_ai/core/widgets/app_toast.dart';
 import 'package:clev_ai/features/auth/widgets/auth_icons.dart';
 import 'package:clev_ai/core/widgets/nutri_logo.dart';
-import 'package:clev_ai/features/auth/screens/health_profile_setup_screen.dart';
 import 'package:clev_ai/features/auth/screens/login_screen.dart';
 import 'package:clev_ai/features/navigation/screens/main_navigation_screen.dart';
 
@@ -92,7 +91,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() => _isLoading = true);
 
     final supabaseService = Provider.of<SupabaseService>(context, listen: false);
-    final secureStorage = Provider.of<SecureStorageService>(context, listen: false);
     final historyService = Provider.of<HistoryService>(context, listen: false);
     final cartService = Provider.of<CartService>(context, listen: false);
     final orderService = Provider.of<OrderService>(context, listen: false);
@@ -139,23 +137,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      final errStr = e.toString().toLowerCase();
-      String friendlyMessage = 'Gagal mendaftar. Silakan coba beberapa saat lagi.';
+      debugPrint('[SignUpScreen] Error sign up: $e');
 
-      if (errStr.contains('already registered') ||
-          errStr.contains('already exists') ||
-          errStr.contains('user_already_exists') ||
-          errStr.contains('unique constraint')) {
-        friendlyMessage = 'Email ini sudah terdaftar. Silakan gunakan email lain atau masuk.';
-      } else if (errStr.contains('password') &&
-          (errStr.contains('weak') || errStr.contains('short') || errStr.contains('least') || errStr.contains('characters'))) {
-        friendlyMessage = 'Kata sandi terlalu pendek. Gunakan minimal 6 karakter.';
-      } else if (errStr.contains('network') ||
-          errStr.contains('socket') ||
-          errStr.contains('connection') ||
-          errStr.contains('timed out') ||
-          errStr.contains('clientexception')) {
-        friendlyMessage = 'Koneksi internet bermasalah. Periksa jaringan Anda.';
+      String friendlyMessage;
+      if (e is AuthException) {
+        friendlyMessage = e.message;
+      } else {
+        final errStr = e.toString().toLowerCase();
+        if (errStr.contains('already registered') ||
+            errStr.contains('already exists') ||
+            errStr.contains('user_already_exists') ||
+            errStr.contains('unique constraint')) {
+          friendlyMessage = 'Email ini sudah terdaftar. Silakan gunakan email lain atau masuk.';
+        } else if (errStr.contains('password') &&
+            (errStr.contains('weak') || errStr.contains('short') || errStr.contains('least') || errStr.contains('characters'))) {
+          friendlyMessage = 'Kata sandi terlalu pendek. Gunakan minimal 6 karakter.';
+        } else if (errStr.contains('rate limit') || errStr.contains('over_email_send_rate_limit')) {
+          friendlyMessage = 'Batas pengiriman email pendaftaran tercapai. Harap tunggu beberapa menit.';
+        } else if (errStr.contains('network') ||
+            errStr.contains('socket') ||
+            errStr.contains('connection') ||
+            errStr.contains('timed out') ||
+            errStr.contains('clientexception')) {
+          friendlyMessage = 'Koneksi internet bermasalah. Periksa jaringan Anda.';
+        } else {
+          friendlyMessage = e.toString().replaceAll('Exception:', '').replaceAll('AuthException:', '').trim();
+          if (friendlyMessage.isEmpty) {
+            friendlyMessage = 'Gagal mendaftar. Silakan periksa kembali data Anda.';
+          }
+        }
       }
 
       AppToast.show(
