@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
@@ -148,6 +149,12 @@ $catalogContext
 ''';
   }
 
+  Future<String> sendMessage(
+    List<ChatMessage> history,
+    String userPrompt, {
+    AiMode aiMode = AiMode.aiFoodAssistant,
+    UserProfile? userProfile,
+  }) async {
     // 1. If offline, return explicit offline network error
     if (!OfflineSyncService().isOnline) {
       throw const SocketException('Koneksi internet tidak tersedia.');
