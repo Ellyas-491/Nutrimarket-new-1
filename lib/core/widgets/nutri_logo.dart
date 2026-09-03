@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:clev_ai/core/theme/app_theme.dart';
 
 class NutriLogo extends StatelessWidget {
@@ -15,58 +15,49 @@ class NutriLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconSize = size * 0.52;
+    final borderRadius = BorderRadius.circular(isRoundedSquare ? size * 0.26 : size * 0.24);
 
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        shape: isRoundedSquare ? BoxShape.rectangle : BoxShape.circle,
-        borderRadius: isRoundedSquare ? BorderRadius.circular(size * 0.28) : null,
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF0D9488), // Primary Teal
-            Color(0xFF059669), // Emerald Green
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        borderRadius: borderRadius,
         boxShadow: withGlow
             ? [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.4),
+                  color: AppColors.primary.withValues(alpha: 0.45),
                   blurRadius: size * 0.35,
                   spreadRadius: size * 0.05,
-                  offset: const Offset(0, 3),
+                  offset: const Offset(0, 4),
                 ),
               ]
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
                 ),
               ],
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Shopping bag base
-          Icon(
-            Icons.shopping_bag_rounded,
-            color: Colors.white,
-            size: iconSize,
-          ),
-          // Embedded organic leaf emblem in center
-          Positioned(
-            bottom: size * 0.22,
-            child: Icon(
-              Icons.eco_rounded,
-              color: const Color(0xFF6EE7B7), // Mint green leaf
-              size: iconSize * 0.46,
-            ),
-          ),
-        ],
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Image.asset(
+          'assets/images/app_logo.png',
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback if asset is still loading
+            return Container(
+              color: AppColors.primary,
+              child: Icon(
+                Icons.local_dining_rounded,
+                color: Colors.white,
+                size: size * 0.5,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

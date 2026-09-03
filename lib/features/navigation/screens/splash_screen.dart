@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:clev_ai/features/cart/services/cart_service.dart';
 import 'package:clev_ai/features/products/services/favorite_service.dart';
 import 'package:clev_ai/features/orders/services/history_service.dart';
@@ -88,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
               const SizedBox(height: 24),
 
               Text(
-                'NutriMarket',
+                'Nutri Market',
                 style: AppTextStyles.display(
                   color: Colors.white,
                 ),
