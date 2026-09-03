@@ -102,16 +102,16 @@ class _LoginScreenState extends State<LoginScreen> {
         final userProfile = profile ?? UserProfile(
           name: email.split('@').first,
           email: email,
-          age: 26,
-          heightCm: 170,
-          weightKg: 65,
+          age: 0,
+          heightCm: 0,
+          weightKg: 0,
           activityLevel: 'Moderate',
           dietaryType: 'General Sehat',
           dietaryPreferences: const ['Rendah Gula', 'Tinggi Serat'],
           foodAllergies: const [],
           healthGoal: 'Gaya Hidup Sehat Seimbang',
           isPremium: false,
-          isSetupCompleted: true,
+          isSetupCompleted: false,
         );
 
         historyService.resetForNewUser(userProfile);
