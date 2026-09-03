@@ -148,16 +148,12 @@ $catalogContext
 ''';
   }
 
-  Future<String> sendMessage(
-    List<ChatMessage> history,
-    String userPrompt, {
-    AiMode aiMode = AiMode.aiFoodAssistant,
-    UserProfile? userProfile,
-  }) async {
-    // 1. If offline, immediately return smart contextual offline advice
+    // 1. If offline, return explicit offline network error
     if (!OfflineSyncService().isOnline) {
-      return getFallbackResponse(userPrompt, history, userProfile);
+      throw const SocketException('Koneksi internet tidak tersedia.');
     }
+
+    String? lastError;
 
     try {
       final systemPrompt = _getSystemPrompt(aiMode, userProfile);
@@ -204,8 +200,8 @@ $catalogContext
               }
               return null;
             },
-            maxAttempts: 2,
-            timeoutDuration: const Duration(seconds: 10),
+            maxAttempts: 3,
+            timeoutDuration: const Duration(seconds: 8),
             actionName: 'GroqModel-$model',
             fallbackValue: null,
           );
@@ -214,15 +210,21 @@ $catalogContext
             return result;
           }
         } catch (e) {
+          lastError = e.toString();
           debugPrint('[GroqService] Model $model error: $e');
         }
       }
     } catch (e) {
+      lastError = e.toString();
       debugPrint('[GroqService] Unhandled error: $e');
     }
 
-    // Graceful offline clinical knowledge fallback if network timed out
-    return getFallbackResponse(userPrompt, history, userProfile);
+    // Explicit error response if network timeout or failed
+    if (lastError != null && (lastError.toLowerCase().contains('timeout') || lastError.toLowerCase().contains('socket'))) {
+      throw const SocketException('Koneksi internet tidak stabil atau timeout.');
+    }
+
+    throw Exception(lastError ?? 'Gagal terhubung ke layanan AI.');
   }
 
   String getFallbackResponse(String userPrompt, [List<ChatMessage>? history, UserProfile? userProfile]) {

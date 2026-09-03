@@ -169,17 +169,28 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         );
       }
     } catch (e) {
-      final currentSession = _historyService.sessions.firstWhere(
-        (s) => s.id == _sessionId,
-        orElse: () => ChatSession(id: _sessionId, title: '', category: '', messages: [], createdAt: DateTime.now()),
-      );
-      final fallbackMsg = ChatMessage(
+      final errStr = e.toString().toLowerCase();
+      String errorMessage = '⚠️ Koneksi internet tidak tersedia.\n\nNutriBot AI membutuhkan koneksi internet aktif untuk menganalisis dan merekomendasikan menu sehat secara real-time. Silakan periksa jaringan Anda lalu coba lagi.';
+      if (errStr.contains('timeout')) {
+        errorMessage = '⚠️ Waktu permintaan habis (Timeout).\n\nKoneksi internet Anda sedang lemah atau server AI sedang sibuk. Silakan periksa koneksi Anda dan coba beberapa saat lagi.';
+      }
+
+      final errorMsg = ChatMessage(
         id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
-        content: _groqService.getFallbackResponse(text, currentSession.messages, _historyService.userProfile),
+        content: errorMessage,
         isUser: false,
         timestamp: DateTime.now(),
       );
-      _historyService.addMessageToSession(_sessionId, fallbackMsg);
+      _historyService.addMessageToSession(_sessionId, errorMsg);
+
+      if (mounted) {
+        AppToast.show(
+          context,
+          title: 'Koneksi Bermasalah',
+          subtitle: 'NutriBot AI membutuhkan koneksi internet aktif',
+          type: ToastType.error,
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
