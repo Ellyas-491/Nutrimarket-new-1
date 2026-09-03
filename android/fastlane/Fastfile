@@ -1,0 +1,22 @@
+default_platform(:android)
+
+platform :android do
+  desc "Deploy a new version to the Google Play Store"
+  lane :deploy_playstore do
+    # Build obfuscated release AAB with compile-time defines
+    sh("flutter", "build", "appbundle", "--release", "--obfuscate", "--split-debug-info=build/app/outputs/symbols")
+    
+    upload_to_play_store(
+      track: 'internal',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Build and distribute APK to Firebase App Distribution / Testers"
+  lane :distribute_beta do
+    sh("flutter", "build", "apk", "--release", "--obfuscate", "--split-debug-info=build/app/outputs/symbols")
+  end
+end
