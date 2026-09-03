@@ -25,7 +25,7 @@ class NotificationService extends ChangeNotifier {
     if (_isInitialized) return;
 
     try {
-      const androidSettings = AndroidInitializationSettings('ic_notification');
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
       const darwinSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -91,8 +91,8 @@ class NotificationService extends ChangeNotifier {
         priority: Priority.high,
         playSound: true,
         enableVibration: true,
-        icon: 'ic_notification',
-        largeIcon: const DrawableResourceAndroidBitmap('ic_notification'),
+        icon: '@mipmap/ic_launcher',
+        largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
         color: const Color(0xFF10B981),
         subText: 'Nutri Market',
         styleInformation: BigTextStyleInformation(
