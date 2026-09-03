@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:clev_ai/features/cart/services/cart_service.dart';
 import 'package:clev_ai/features/notifications/services/notification_service.dart';
@@ -8,12 +8,16 @@ import 'package:clev_ai/features/notifications/screens/notifications_screen.dart
 
 class DashboardHeader extends StatelessWidget {
   final String userName;
+  final String avatarUrl;
+  final VoidCallback? onProfilePressed;
   final VoidCallback? onCartPressed;
   final VoidCallback? onNotificationPressed;
 
   const DashboardHeader({
     super.key,
     required this.userName,
+    this.avatarUrl = '',
+    this.onProfilePressed,
     this.onCartPressed,
     this.onNotificationPressed,
   });
@@ -38,63 +42,84 @@ class DashboardHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Left side: User profile info
+        // Left side: User profile info & dynamic avatar
         Expanded(
           child: Row(
             children: [
-              Stack(
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.primaryLight,
-                      border: Border.all(color: AppColors.primary, width: 1.5),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.person_rounded, color: AppColors.primary, size: 22),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 1,
-                    right: 1,
-                    child: Container(
-                      width: 10,
-                      height: 10,
+              GestureDetector(
+                onTap: onProfilePressed,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.success,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isDark ? AppColors.darkBackground : Colors.white,
-                          width: 1.5,
+                        color: AppColors.primaryLight,
+                        border: Border.all(color: AppColors.primary, width: 1.8),
+                        image: avatarUrl.isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(avatarUrl),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: avatarUrl.isEmpty
+                          ? Center(
+                              child: Text(
+                                userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                    Positioned(
+                      bottom: 1,
+                      right: 1,
+                      child: Container(
+                        width: 11,
+                        height: 11,
+                        decoration: BoxDecoration(
+                          color: AppColors.success,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isDark ? AppColors.darkBackground : Colors.white,
+                            width: 1.8,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _getTimeGreeting(),
-                      style: AppTextStyles.caption(
-                        color: isDark ? Colors.white60 : AppColors.secondary,
+                child: GestureDetector(
+                  onTap: onProfilePressed,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _getTimeGreeting(),
+                        style: AppTextStyles.caption(
+                          color: isDark ? Colors.white60 : AppColors.secondary,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '$userName 👋',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.heading2(
-                        color: isDark ? Colors.white : AppColors.textPrimary,
+                      Text(
+                        '$userName 👋',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.heading2(
+                          color: isDark ? Colors.white : AppColors.textPrimary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

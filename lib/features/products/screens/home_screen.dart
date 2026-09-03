@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:clev_ai/features/orders/services/history_service.dart';
 import 'package:clev_ai/features/products/services/product_repository.dart';
@@ -61,6 +61,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Isolated Component 1: Header (Avatar, Greeting, Actions)
                     DashboardHeader(
                       userName: userName,
+                      avatarUrl: profile.avatarUrl,
+                      onProfilePressed: () => widget.onNavigateTab(4),
                     ),
 
                     const SizedBox(height: 14),

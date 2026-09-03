@@ -1,10 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:clev_ai/core/theme/app_theme.dart';
 
 class ProfileHeaderWidget extends StatelessWidget {
   final String name;
   final String email;
   final String phone;
+  final String avatarUrl;
   final String membershipTier;
   final VoidCallback? onEditPressed;
 
@@ -13,6 +14,7 @@ class ProfileHeaderWidget extends StatelessWidget {
     required this.name,
     required this.email,
     required this.phone,
+    this.avatarUrl = '',
     this.membershipTier = 'Nutri-VIP Premium',
     this.onEditPressed,
   });
@@ -31,7 +33,7 @@ class ProfileHeaderWidget extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -50,17 +52,25 @@ class ProfileHeaderWidget extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: AppColors.primaryLight,
                       border: Border.all(color: AppColors.primary, width: 2),
+                      image: avatarUrl.isNotEmpty
+                          ? DecorationImage(
+                              image: NetworkImage(avatarUrl),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
-                    child: Center(
-                      child: Text(
-                        name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                        style: const TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
+                    child: avatarUrl.isEmpty
+                        ? Center(
+                            child: Text(
+                              name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          )
+                        : null,
                   ),
                   Positioned(
                     bottom: 2,
@@ -102,7 +112,7 @@ class ProfileHeaderWidget extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.12),
+                            color: AppColors.primary.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
