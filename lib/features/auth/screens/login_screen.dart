@@ -170,14 +170,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       final activeProfile = historyService.userProfile;
-      final bool needsSetup = !activeProfile.isSetupCompleted || activeProfile.age == 0;
-      final targetScreen = needsSetup
-          ? HealthProfileSetupScreen(initialProfile: activeProfile)
-          : const MainNavigationScreen();
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => targetScreen),
+        MaterialPageRoute(
+          builder: (_) => HealthProfileSetupScreen(initialProfile: activeProfile),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
