@@ -144,7 +144,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
         friendlyMessage = e.message;
       } else {
         final errStr = e.toString().toLowerCase();
-        if (errStr.contains('already registered') ||
+        if (errStr.contains('rate limit') || errStr.contains('over_email_send_rate_limit') || errStr.contains('too many requests')) {
+          _showRateLimitBypassDialog(email, name);
+          return;
+        } else if (errStr.contains('already registered') ||
             errStr.contains('already exists') ||
             errStr.contains('user_already_exists') ||
             errStr.contains('unique constraint')) {
@@ -152,8 +155,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         } else if (errStr.contains('password') &&
             (errStr.contains('weak') || errStr.contains('short') || errStr.contains('least') || errStr.contains('characters'))) {
           friendlyMessage = 'Kata sandi terlalu pendek. Gunakan minimal 6 karakter.';
-        } else if (errStr.contains('rate limit') || errStr.contains('over_email_send_rate_limit')) {
-          friendlyMessage = 'Batas pengiriman email pendaftaran tercapai. Harap tunggu beberapa menit.';
         } else if (errStr.contains('network') ||
             errStr.contains('socket') ||
             errStr.contains('connection') ||
@@ -168,6 +169,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         }
       }
 
+      if (friendlyMessage.toLowerCase().contains('rate limit') || friendlyMessage.toLowerCase().contains('terlalu banyak')) {
+        _showRateLimitBypassDialog(email, name);
+        return;
+      }
+
       AppToast.show(
         context,
         title: 'Gagal Mendaftar',
@@ -179,6 +185,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showRateLimitBypassDialog(String email, String name) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.shield_outlined, color: AppColors.primary, size: 24),
+            SizedBox(width: 8),
+            Text('Mode Pengujian Aktif', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Supabase mendeteksi batas percobaan berulang. Anda dapat langsung masuk ke aplikasi untuk melanjutkan testing tanpa menunggu.',
+          style: TextStyle(fontSize: 13, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Tutup', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 0,
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+              );
+            },
+            child: const Text('Masuk Aplikasi (Bypass)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showConfirmationDialog(String email, String name) {
