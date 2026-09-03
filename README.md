@@ -1,79 +1,87 @@
-# Clev AI
+# 🥗 NutriMarket — Mobile Marketplace Makanan Sehat & AI Nutritionist
 
-Kalkulator pintar berbasis AI dengan tampilan seperti ChatGPT. Cukup ketik pertanyaan matematika — tidak perlu tombol angka.
+**NutriMarket** adalah aplikasi mobile modern berbasis Flutter yang dirancang khusus untuk membantu pengguna menjalani gaya hidup sehat melalui kurasi makanan bergizi, personalisasi diet (diabetes, hipertensi, rendah purin, dll.), konsultasi nutrisi berbasis AI, pelacakan pesanan makanan sehat *real-time*, dan integrasi cloud **Supabase**.
 
-**Powered by:** Flutter + Groq API (gratis)
+---
 
-## Fitur
+## 🌟 Fitur Utama
 
-- UI chat minimalis ala ChatGPT
-- Kalkulator AI — tanya dalam bahasa natural
-- Android & iOS dari satu codebase
-- Groq API (Llama 3.3 70B) — tier gratis
+### 1. 🛒 Marketplace Makanan Sehat
+- **Katalog Terverifikasi Ahli Gizi**: Menampilkan kalori, makronutrisi (karbohidrat, protein, lemak, serat, gula), serta label keamanan kesehatan.
+- **Filter Berdasarkan Diet & Alergen**: Pilihan khusus untuk Diabetes, Rendah Garam (Hipertensi), Rendah Gula, Tinggi Protein, Asam Urat Rendah Purin, dan Bebas Alergen.
+- **Keranjang Belanja & Checkout Real-Time**: Integrasi voucher diskon, ongkir pintar, dan multi-metode pembayaran (E-Wallet, Transfer Bank, COD).
 
-## Setup
+### 2. 🤖 Asisten Konsultasi Nutrisi AI
+- Chatbot cerdas dengan dukungan suara (Voice-to-Text & Text-to-Speech) untuk rekomendasi makanan harian, analisis pantangan nutrisi, dan edukasi gizi personal.
 
-### 1. Install Flutter
+### 3. 📦 Pelacakan Pesanan & Driver Kurir
+- Status pengantaran terintegrasi (*auto-sync* cloud database).
+- Informasi kurir (*Bambang Wijaya*), nomor kontak aktif, dan plat kendaraan otomatis muncul saat pesanan dalam proses antar.
+- Konfirmasi penyelesaian pesanan & upload bukti pengantaran.
 
-Download dari [flutter.dev](https://docs.flutter.dev/get-started/install/windows) dan pastikan `flutter doctor` berhasil.
+### 4. 👤 Profil Kesehatan Personal & Keluarga
+- Perhitungan indeks massa tubuh (BMI) otomatis.
+- Multi-profil kesehatan untuk seluruh anggota keluarga.
+- Sinkronisasi data aman (alamat pengiriman, riwayat pesanan, menu favorit) menggunakan Supabase.
 
-### 2. Siapkan API Key Groq
+---
 
-1. Daftar/login di [console.groq.com](https://console.groq.com)
-2. Buat API Key di menu **API Keys**
-3. Buka file `.env` di folder proyek ini
-4. Ganti isinya:
+## 🛠️ Tech Stack
 
+- **Framework**: Flutter 3 (Dart)
+- **State Management**: Provider
+- **Backend & Database**: Supabase Cloud (PostgreSQL, Auth, Realtime Database, Row Level Security)
+- **AI Engine**: Groq API (Llama 3.3 70B Fast Inference)
+- **Local Storage**: `shared_preferences` & `flutter_secure_storage`
+
+---
+
+## 🚀 Panduan Memulai (Setup)
+
+### 1. Prasyarat
+- Flutter SDK (versi >= 3.2.0)
+- Android Studio / VS Code dengan Flutter Extension
+
+### 2. Konfigurasi Environment (`.env`)
+Buat file `.env` di root proyek (atau salin dari `.env.example`):
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
+GROQ_API_KEY=your-groq-api-key
 ```
-GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxx
-```
 
-### 3. Jalankan proyek
+### 3. Setup Database Supabase
+Jalankan skrip SQL di file [`supabase_schema.sql`](supabase_schema.sql) pada Supabase SQL Editor Anda untuk membuat tabel profil, produk, keranjang, pesanan, dan alamat.
 
+### 4. Jalankan Aplikasi
 ```bash
-cd clev_ai
-flutter create . --org com.clevai
+# Install dependensi
 flutter pub get
+
+# Jalankan pada emulator atau perangkat fisik
 flutter run
 ```
 
-Perintah `flutter create .` melengkapi file platform (ikon launcher, dll.) tanpa menimpa kode di `lib/`.
-
-### 4. Build APK (Android)
-
+### 5. Build APK Rilis (Android)
 ```bash
 flutter build apk --release
 ```
+Hasil file APK rilis: `build/app/outputs/flutter-apk/app-release.apk`
 
-APK ada di: `build/app/outputs/flutter-apk/app-release.apk`
+---
 
-### 5. Build iOS (butuh Mac + Xcode)
-
-```bash
-flutter build ios --release
-```
-
-## Struktur proyek
+## 📂 Struktur Direktori Proyek
 
 ```
 lib/
-├── main.dart              # Entry point
-├── models/                # Model data chat
-├── screens/               # Halaman utama
-├── services/              # Groq API
-├── theme/                 # Warna & tema
-└── widgets/               # Input bar, bubble chat, dll.
+├── models/         # Data model (UserProfile, FoodProduct, Order, CartItem, Chat)
+├── screens/        # UI Screen (Home, Discover, AI Assistant, Cart, Orders, Profile, Auth)
+├── services/       # Layanan data (SupabaseService, GroqService, OrderService, CartService)
+├── theme/          # Palet warna, tipografi, & tema gelap/terang
+└── widgets/        # Komponen modular reusable (Cards, Sheets, Header, Toasts)
 ```
 
-## Contoh pertanyaan
+---
 
-- `Berapa 25% dari 840?`
-- `Hitung luas lingkaran radius 7 cm`
-- `1250 dibagi 16 berapa?`
-- `Konversi 100 fahrenheit ke celsius`
-
-## Catatan
-
-- File `.env` tidak di-commit ke git (sudah ada di `.gitignore`)
-- Ikon + dan mic di input bar siap untuk fitur lanjutan (lampiran, voice input)
-- Untuk produksi, pertimbangkan menyimpan API key di backend, bukan di APK
+## 📄 Lisensi
+Hak Cipta © 2026 NutriMarket Team. Seluruh hak cipta dilindungi.
