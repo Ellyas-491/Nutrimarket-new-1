@@ -31,24 +31,91 @@ class _PaywallScreenState extends State<PaywallScreen> {
       }
     }
 
-    if (mounted) {
-      Navigator.pop(context);
+    setState(() {});
 
+    if (mounted) {
       AppToast.show(
         context,
-        title: 'NutriMarket Plus Aktif! 👑',
+        title: 'Nutri Market Plus Aktif! 👑',
         subtitle: 'Selamat! Diskon 10% di keranjang belanja dan Konsultasi AI Pro tanpa batas kini telah aktif.',
         type: ToastType.success,
       );
     }
   }
 
+  Future<void> _cancelPremium() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF22302D),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444), size: 24),
+            SizedBox(width: 8),
+            Text('Batalkan Langganan?', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Jika langganan dibatalkan, Anda tidak akan lagi mendapatkan diskon 10% keranjang belanja dan akses konsultasi AI tanpa batas.',
+          style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Tetap Berlangganan', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              elevation: 0,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Ya, Batalkan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final historyService = HistoryService();
+      final updated = historyService.userProfile.copyWith(isPremium: false);
+      historyService.updateUserProfile(updated);
+      LocalStorageService().saveUserProfile(updated.toMap());
+
+      final supabase = SupabaseService();
+      if (supabase.isConfigured && supabase.currentUser != null) {
+        try {
+          await supabase.client!.from('profiles').upsert({'id': supabase.currentUser!.id, 'is_premium': false});
+        } catch (e) {
+          debugPrint('[Paywall] Error canceling premium: $e');
+        }
+      }
+
+      setState(() {});
+
+      if (mounted) {
+        AppToast.show(
+          context,
+          title: 'Langganan Dibatalkan',
+          subtitle: 'Status langganan Nutri Market Plus Anda telah dinonaktifkan.',
+          type: ToastType.info,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final historyService = HistoryService();
+    final isPremium = historyService.userProfile.isPremium;
+
     return Scaffold(
       backgroundColor: AppColors.dark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close_rounded, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -59,7 +126,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           child: Column(
             children: [
-              // Golden Crown Badge matching exact 10th mockup screenshot
+              // Golden Crown Badge
               Container(
                 width: 64,
                 height: 64,
@@ -83,59 +150,104 @@ class _PaywallScreenState extends State<PaywallScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Take your health journey\nto the next level',
+                isPremium
+                    ? 'Anda telah menikmati semua fitur eksklusif Nutri Market Plus'
+                    : 'Tingkatkan gaya hidup sehat Anda ke level berikutnya',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.body2(color: AppColors.secondary),
               ),
 
-              const SizedBox(height: 32),
+              if (isPremium) ...[
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.gold.withValues(alpha: 0.6), width: 1.2),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.verified_rounded, color: AppColors.gold, size: 16),
+                      SizedBox(width: 6),
+                      Text(
+                        'Status: Berlangganan Aktif 👑',
+                        style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 28),
 
               // Feature Rows
               _buildFeatureRow(Icons.chat_outlined, 'Konsultasi gizi tanpa batas'),
               _buildFeatureRow(Icons.analytics_outlined, 'Analisis tren nutrisi & indeks glikemik'),
               _buildFeatureRow(Icons.recommend_outlined, 'Rekomendasi menu gizi personal'),
               _buildFeatureRow(Icons.support_agent_rounded, 'Prioritas konsultasi ahli gizi'),
+              _buildFeatureRow(Icons.percent_rounded, 'Diskon otomatis 10% setiap transaksi'),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
-              // Plan selection chips
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildPlanCard(
-                      index: 0,
-                      title: 'Monthly',
-                      price: 'Rp 49.000',
-                      sub: '/month',
-                      tag: null,
+              // Plan selection chips (hanya tampil jika belum premium)
+              if (!isPremium) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildPlanCard(
+                        index: 0,
+                        title: 'Bulanan',
+                        price: 'Rp 49.000',
+                        sub: '/bulan',
+                        tag: null,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildPlanCard(
+                        index: 1,
+                        title: 'Tahunan',
+                        price: 'Rp 399.000',
+                        sub: '/tahun',
+                        tag: 'Paling Hemat',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+
+                // CTA Button: [ Aktifkan Nutri Market Plus ]
+                AppButton(
+                  text: 'Aktifkan Nutri Market Plus',
+                  height: 52,
+                  onPressed: _activatePremium,
+                ),
+              ] else ...[
+                // Tombol Batalkan Langganan (Jika sedang aktif)
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    onPressed: _cancelPremium,
+                    icon: const Icon(Icons.cancel_outlined, color: Color(0xFFEF4444), size: 20),
+                    label: const Text(
+                      'Batalkan Langganan',
+                      style: TextStyle(color: Color(0xFFEF4444), fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildPlanCard(
-                      index: 1,
-                      title: 'Yearly',
-                      price: 'Rp 399.000',
-                      sub: '/year',
-                      tag: 'Best Value',
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 32),
-
-              // CTA Button: [ Start Free Trial ]
-              AppButton(
-                text: 'Aktifkan Uji Coba NutriMarket Plus',
-                height: 52,
-                onPressed: _activatePremium,
-              ),
+                ),
+              ],
 
               const SizedBox(height: 16),
 
               Text(
-                'Cancel anytime. No hidden fees.',
+                'Batalkan kapan saja. Tanpa biaya tersembunyi.',
                 style: AppTextStyles.caption(color: AppColors.secondary),
               ),
               const SizedBox(height: 20),
@@ -148,7 +260,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Widget _buildFeatureRow(IconData icon, String label) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Row(
         children: [
           Container(
@@ -160,9 +272,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
             child: Icon(icon, color: AppColors.primary, size: 18),
           ),
           const SizedBox(width: 14),
-          Text(
-            label,
-            style: AppTextStyles.body2(color: Colors.white),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.body2(color: Colors.white),
+            ),
           ),
         ],
       ),
