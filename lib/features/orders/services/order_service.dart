@@ -416,6 +416,7 @@ class OrderService extends ChangeNotifier {
         return;
     }
 
+    _handleStatusNotification(order, order.status, nextStatus);
     order.status = nextStatus;
     order.estimatedDelivery = newEstimate;
     order.statusHistory.add(
@@ -504,6 +505,8 @@ class OrderService extends ChangeNotifier {
           },
         });
       }
+      
+      _handleStatusNotification(_orders[index], OrderStatus.delivered, OrderStatus.completed);
 
       _safeNotify();
     }
