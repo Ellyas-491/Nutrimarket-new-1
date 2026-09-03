@@ -136,16 +136,16 @@ class _LoginScreenState extends State<LoginScreen> {
         final newProfile = UserProfile(
           name: email.split('@').first,
           email: email,
-          age: 26,
-          heightCm: 170,
-          weightKg: 65,
+          age: 0,
+          heightCm: 0,
+          weightKg: 0,
           activityLevel: 'Moderate',
           dietaryType: 'General Sehat',
           dietaryPreferences: const ['Rendah Gula', 'Tinggi Serat'],
           foodAllergies: const [],
           healthGoal: 'Gaya Hidup Sehat Seimbang',
           isPremium: false,
-          isSetupCompleted: true,
+          isSetupCompleted: false,
         );
 
         historyService.resetForNewUser(newProfile);
@@ -165,14 +165,15 @@ class _LoginScreenState extends State<LoginScreen> {
       AppToast.show(
         context,
         title: 'Berhasil Masuk',
-        subtitle: 'Selamat datang kembali di Nutri Market!',
+        subtitle: 'Selamat datang di Nutri Market!',
         type: ToastType.success,
       );
 
       final activeProfile = historyService.userProfile;
-      final targetScreen = (activeProfile.isSetupCompleted || activeProfile.age > 0 || activeProfile.name.isNotEmpty)
-          ? const MainNavigationScreen()
-          : HealthProfileSetupScreen(initialProfile: activeProfile);
+      final bool needsSetup = !activeProfile.isSetupCompleted || activeProfile.age == 0;
+      final targetScreen = needsSetup
+          ? HealthProfileSetupScreen(initialProfile: activeProfile)
+          : const MainNavigationScreen();
 
       Navigator.pushReplacement(
         context,
