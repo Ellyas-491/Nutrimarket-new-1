@@ -25,7 +25,7 @@ class NotificationService extends ChangeNotifier {
     if (_isInitialized) return;
 
     try {
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings('ic_notification');
       const darwinSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -48,7 +48,7 @@ class NotificationService extends ChangeNotifier {
       const orderChannel = AndroidNotificationChannel(
         'order_updates_channel',
         'Status Pesanan & Pengantaran',
-        description: 'Notifikasi real-time proses memasak, pengantaran kurir, dan pesanan sampai.',
+        description: 'Notifikasi status pesanan Nutri Market.',
         importance: Importance.max,
         playSound: true,
         enableVibration: true,
@@ -86,19 +86,19 @@ class NotificationService extends ChangeNotifier {
       final androidDetails = AndroidNotificationDetails(
         'order_updates_channel',
         'Status Pesanan & Pengantaran',
-        channelDescription: 'Notifikasi real-time status memasak, pengantaran, dan pesanan selesai.',
+        channelDescription: 'Notifikasi status pesanan Nutri Market.',
         importance: Importance.max,
         priority: Priority.high,
         playSound: true,
         enableVibration: true,
+        icon: 'ic_notification',
+        largeIcon: const DrawableResourceAndroidBitmap('ic_notification'),
+        color: const Color(0xFF10B981),
+        subText: 'Nutri Market',
         styleInformation: BigTextStyleInformation(
           body,
           contentTitle: title,
-          summaryText: 'Nutri Market Update',
         ),
-        icon: '@mipmap/ic_launcher',
-        largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
-        color: const Color(0xFF10B981),
       );
 
       const darwinDetails = DarwinNotificationDetails(
@@ -171,7 +171,7 @@ class NotificationService extends ChangeNotifier {
     _persist();
     notifyListeners();
 
-    // Otomatis Munculkan Notifikasi di HP / Device Status Bar
+    // Otomatis Munculkan Notifikasi Ringkas di HP / Device Status Bar
     showSystemNotification(
       title: title,
       body: message,

@@ -65,34 +65,36 @@ class OrderService extends ChangeNotifier {
   }
 
   void _handleStatusNotification(OrderModel order, OrderStatus oldStatus, OrderStatus newStatus) {
+    final shortId = order.id.length > 8 ? order.id.substring(order.id.length - 8) : order.id;
+
     if (newStatus == OrderStatus.preparing) {
       NotificationService().addNotification(
-        title: 'Pesanan Sedang Dimasak 🍳',
-        message: 'Pesanan #${order.id} sedang dimasak dan disiapkan oleh koki ahli gizi.',
+        title: 'Sedang Dimasak 🍳',
+        message: 'Pesanan #$shortId sedang disiapkan koki.',
         category: NotificationCategory.order,
         isImportant: false,
         orderId: order.id,
       );
     } else if (newStatus == OrderStatus.delivering) {
       NotificationService().addNotification(
-        title: 'Pesanan Sedang Diantar 🛵',
-        message: 'Kurir sedang dalam perjalanan mengantar pesanan #${order.id} ke alamat Anda.',
+        title: 'Sedang Diantar 🛵',
+        message: 'Kurir sedang menuju alamat Anda.',
         category: NotificationCategory.delivery,
         isImportant: true,
         orderId: order.id,
       );
     } else if (newStatus == OrderStatus.delivered) {
       NotificationService().addNotification(
-        title: 'Pesanan Telah Sampai 📍',
-        message: 'Kurir telah sampai di alamat Anda dengan pesanan #${order.id}. Silakan konfirmasi pesanan diterima.',
+        title: 'Pesanan Sampai 📍',
+        message: 'Pesanan telah tiba. Silakan periksa & konfirmasi.',
         category: NotificationCategory.delivery,
         isImportant: true,
         orderId: order.id,
       );
     } else if (newStatus == OrderStatus.completed) {
       NotificationService().addNotification(
-        title: 'Pesanan Selesai 🍽️',
-        message: 'Terima kasih! Pesanan #${order.id} telah selesai. Silakan beri ulasan Anda.',
+        title: 'Pesanan Selesai 🎉',
+        message: 'Pesanan selesai. Jangan lupa beri ulasan menu ini.',
         category: NotificationCategory.order,
         isImportant: true,
         orderId: order.id,
@@ -255,13 +257,25 @@ class OrderService extends ChangeNotifier {
     // 4. Trigger background sync & Notification
     OfflineSyncService().triggerSync();
 
-    NotificationService().addNotification(
-      title: 'Pesanan Berhasil Dibuat (#${newOrder.id}) 🛍️',
-      message: 'Pesanan ${newOrder.items.length} menu senilai ${CartService().formatCurrency(newOrder.total)} berhasil dibuat dan menunggu pembayaran.',
-      category: NotificationCategory.order,
-      isImportant: true,
-      orderId: newOrder.id,
-    );
+    final shortId = newOrder.id.length > 8 ? newOrder.id.substring(newOrder.id.length - 8) : newOrder.id;
+
+    if (isPaidImmediately) {
+      NotificationService().addNotification(
+        title: 'Pesanan Diproses 🍳',
+        message: 'Pembayaran berhasil. Pesanan #$shortId sedang diproses dapur.',
+        category: NotificationCategory.order,
+        isImportant: true,
+        orderId: newOrder.id,
+      );
+    } else {
+      NotificationService().addNotification(
+        title: 'Menunggu Pembayaran 💳',
+        message: 'Silakan selesaikan pembayaran pesanan #$shortId.',
+        category: NotificationCategory.order,
+        isImportant: true,
+        orderId: newOrder.id,
+      );
+    }
 
     _safeNotify();
     return newOrder;
@@ -341,9 +355,11 @@ class OrderService extends ChangeNotifier {
 
       OfflineSyncService().triggerSync();
 
+      final shortId = order.id.length > 8 ? order.id.substring(order.id.length - 8) : order.id;
+
       NotificationService().addNotification(
-        title: 'Pembayaran Berhasil Diterima (#${order.id}) 💳',
-        message: 'Pembayaran pesanan #${order.id} sebesar ${CartService().formatCurrency(order.total)} telah diverifikasi. Dapur segera memasak pesanan Anda.',
+        title: 'Pembayaran Berhasil 💳',
+        message: 'Pembayaran pesanan #$shortId terverifikasi. Makanan sedang disiapkan.',
         category: NotificationCategory.payment,
         isImportant: true,
         orderId: order.id,
