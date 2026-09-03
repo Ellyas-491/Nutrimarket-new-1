@@ -1,21 +1,21 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
-import 'screens/splash_screen.dart';
-import 'services/cart_service.dart';
-import 'services/favorite_service.dart';
-import 'services/history_service.dart';
-import 'services/local_storage_service.dart';
-import 'services/notification_service.dart';
-import 'services/offline_sync_service.dart';
-import 'services/order_service.dart';
-import 'services/product_repository.dart';
-import 'services/secure_storage_service.dart';
-import 'services/supabase_service.dart';
-import 'services/voice_service.dart';
-import 'theme/app_theme.dart';
+import 'package:clev_ai/features/navigation/screens/splash_screen.dart';
+import 'package:clev_ai/features/cart/services/cart_service.dart';
+import 'package:clev_ai/features/products/services/favorite_service.dart';
+import 'package:clev_ai/features/orders/services/history_service.dart';
+import 'package:clev_ai/data/local/local_storage_service.dart';
+import 'package:clev_ai/features/notifications/services/notification_service.dart';
+import 'package:clev_ai/data/local/offline_sync_service.dart';
+import 'package:clev_ai/features/orders/services/order_service.dart';
+import 'package:clev_ai/features/products/services/product_repository.dart';
+import 'package:clev_ai/data/local/secure_storage_service.dart';
+import 'package:clev_ai/data/remote/supabase_service.dart';
+import 'package:clev_ai/features/ai_assistant/services/voice_service.dart';
+import 'package:clev_ai/core/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
