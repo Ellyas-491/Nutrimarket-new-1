@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:clev_ai/features/notifications/models/app_notification.dart';
 import 'package:clev_ai/features/cart/models/cart_item.dart';
@@ -262,6 +263,7 @@ class OrderService extends ChangeNotifier {
         isImportant: true,
         orderId: newOrder.id,
       );
+      _scheduleOrderProgression(newOrder.id);
     } else {
       NotificationService().addNotification(
         title: 'Menunggu Pembayaran 💳',
@@ -274,6 +276,37 @@ class OrderService extends ChangeNotifier {
 
     _safeNotify();
     return newOrder;
+  }
+
+  final Map<String, Timer> _activeProgressionTimers = {};
+
+  /// Otomatis memajukan status pesanan secara bertahap (Memasak 🍳 -> Diantar 🛵 -> Sampai 📍)
+  void _scheduleOrderProgression(String orderId) {
+    _activeProgressionTimers[orderId]?.cancel();
+
+    // Tahap 1: Mulai Dimasak (Setelah 4 detik)
+    _activeProgressionTimers[orderId] = Timer(const Duration(seconds: 4), () {
+      final idx = _orders.indexWhere((o) => o.id == orderId);
+      if (idx >= 0 && (_orders[idx].status == OrderStatus.paid || _orders[idx].status == OrderStatus.confirmed)) {
+        advanceOrderStatus(orderId);
+
+        // Tahap 2: Mulai Diantar Kurir (Setelah 8 detik berikutnya)
+        _activeProgressionTimers[orderId] = Timer(const Duration(seconds: 8), () {
+          final idx2 = _orders.indexWhere((o) => o.id == orderId);
+          if (idx2 >= 0 && _orders[idx2].status == OrderStatus.preparing) {
+            advanceOrderStatus(orderId);
+
+            // Tahap 3: Pesanan Sampai di Lokasi (Setelah 10 detik berikutnya)
+            _activeProgressionTimers[orderId] = Timer(const Duration(seconds: 10), () {
+              final idx3 = _orders.indexWhere((o) => o.id == orderId);
+              if (idx3 >= 0 && _orders[idx3].status == OrderStatus.delivering) {
+                advanceOrderStatus(orderId);
+              }
+            });
+          }
+        });
+      }
+    });
   }
 
   OrderModel directOrder({
@@ -357,6 +390,8 @@ class OrderService extends ChangeNotifier {
         isImportant: true,
         orderId: order.id,
       );
+
+      _scheduleOrderProgression(order.id);
 
       _safeNotify();
     }
