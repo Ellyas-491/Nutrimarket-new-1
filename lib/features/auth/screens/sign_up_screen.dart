@@ -11,6 +11,7 @@ import 'package:clev_ai/core/theme/app_theme.dart';
 import 'package:clev_ai/core/widgets/app_toast.dart';
 import 'package:clev_ai/features/auth/widgets/auth_icons.dart';
 import 'package:clev_ai/core/widgets/nutri_logo.dart';
+import 'package:clev_ai/features/auth/screens/health_profile_setup_screen.dart';
 import 'package:clev_ai/features/auth/screens/login_screen.dart';
 import 'package:clev_ai/features/navigation/screens/main_navigation_screen.dart';
 
@@ -120,20 +121,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (supabaseService.isConfigured) {
         // Real Supabase Sign Up & Profile Upsert
-        await supabaseService.signUp(
+        final response = await supabaseService.signUp(
           email: email,
           password: password,
           fullName: name,
         );
 
         if (!mounted) return;
-        _showConfirmationDialog(email, name);
+
+        if (response.session != null) {
+          // Email confirmation OFF: Langsung masuk ke Pengaturan Informasi Profil Kesehatan
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => HealthProfileSetupScreen(initialProfile: newProfile),
+            ),
+          );
+        } else {
+          // Email confirmation ON: Tampilkan dialog cek inbox email
+          _showConfirmationDialog(email, name);
+        }
       } else {
         // Fallback / Offline Testing Mode
         await Future.delayed(const Duration(milliseconds: 700));
 
         if (!mounted) return;
-        _showConfirmationDialog(email, name);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => HealthProfileSetupScreen(initialProfile: newProfile),
+          ),
+        );
       }
     } catch (e) {
       if (!mounted) return;
