@@ -200,7 +200,6 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
               // Feature Rows
               _buildFeatureRow(Icons.chat_outlined, 'Konsultasi gizi tanpa batas'),
-              _buildFeatureRow(Icons.analytics_outlined, 'Analisis tren nutrisi & indeks glikemik'),
               _buildFeatureRow(Icons.recommend_outlined, 'Rekomendasi menu gizi personal'),
               _buildFeatureRow(Icons.support_agent_rounded, 'Prioritas konsultasi ahli gizi'),
               _buildFeatureRow(Icons.percent_rounded, 'Diskon otomatis 10% setiap transaksi'),
