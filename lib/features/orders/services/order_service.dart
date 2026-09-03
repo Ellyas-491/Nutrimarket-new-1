@@ -3,7 +3,6 @@ import 'package:clev_ai/features/notifications/models/app_notification.dart';
 import 'package:clev_ai/features/cart/models/cart_item.dart';
 import 'package:clev_ai/features/products/models/food_product.dart';
 import 'package:clev_ai/features/orders/models/order.dart';
-import 'package:clev_ai/features/cart/services/cart_service.dart';
 import 'package:clev_ai/data/local/local_storage_service.dart';
 import 'package:clev_ai/features/notifications/services/notification_service.dart';
 import 'package:clev_ai/data/local/offline_sync_service.dart';
@@ -65,12 +64,10 @@ class OrderService extends ChangeNotifier {
   }
 
   void _handleStatusNotification(OrderModel order, OrderStatus oldStatus, OrderStatus newStatus) {
-    final shortId = order.id.length > 8 ? order.id.substring(order.id.length - 8) : order.id;
-
     if (newStatus == OrderStatus.preparing) {
       NotificationService().addNotification(
         title: 'Sedang Dimasak 🍳',
-        message: 'Pesanan #$shortId sedang disiapkan koki.',
+        message: 'Pesanan sedang dimasak.',
         category: NotificationCategory.order,
         isImportant: false,
         orderId: order.id,
@@ -78,7 +75,7 @@ class OrderService extends ChangeNotifier {
     } else if (newStatus == OrderStatus.delivering) {
       NotificationService().addNotification(
         title: 'Sedang Diantar 🛵',
-        message: 'Kurir sedang menuju alamat Anda.',
+        message: 'Pesanan sedang diantar kurir.',
         category: NotificationCategory.delivery,
         isImportant: true,
         orderId: order.id,
@@ -86,7 +83,7 @@ class OrderService extends ChangeNotifier {
     } else if (newStatus == OrderStatus.delivered) {
       NotificationService().addNotification(
         title: 'Pesanan Sampai 📍',
-        message: 'Pesanan telah tiba. Silakan periksa & konfirmasi.',
+        message: 'Pesanan telah sampai di tujuan.',
         category: NotificationCategory.delivery,
         isImportant: true,
         orderId: order.id,
@@ -94,7 +91,7 @@ class OrderService extends ChangeNotifier {
     } else if (newStatus == OrderStatus.completed) {
       NotificationService().addNotification(
         title: 'Pesanan Selesai 🎉',
-        message: 'Pesanan selesai. Jangan lupa beri ulasan menu ini.',
+        message: 'Pesanan telah selesai diterima.',
         category: NotificationCategory.order,
         isImportant: true,
         orderId: order.id,
@@ -257,12 +254,10 @@ class OrderService extends ChangeNotifier {
     // 4. Trigger background sync & Notification
     OfflineSyncService().triggerSync();
 
-    final shortId = newOrder.id.length > 8 ? newOrder.id.substring(newOrder.id.length - 8) : newOrder.id;
-
     if (isPaidImmediately) {
       NotificationService().addNotification(
         title: 'Pesanan Diproses 🍳',
-        message: 'Pembayaran berhasil. Pesanan #$shortId sedang diproses dapur.',
+        message: 'Pembayaran berhasil. Pesanan sedang diproses.',
         category: NotificationCategory.order,
         isImportant: true,
         orderId: newOrder.id,
@@ -270,7 +265,7 @@ class OrderService extends ChangeNotifier {
     } else {
       NotificationService().addNotification(
         title: 'Menunggu Pembayaran 💳',
-        message: 'Silakan selesaikan pembayaran pesanan #$shortId.',
+        message: 'Silakan lakukan pembayaran pesanan.',
         category: NotificationCategory.order,
         isImportant: true,
         orderId: newOrder.id,
@@ -355,11 +350,9 @@ class OrderService extends ChangeNotifier {
 
       OfflineSyncService().triggerSync();
 
-      final shortId = order.id.length > 8 ? order.id.substring(order.id.length - 8) : order.id;
-
       NotificationService().addNotification(
         title: 'Pembayaran Berhasil 💳',
-        message: 'Pembayaran pesanan #$shortId terverifikasi. Makanan sedang disiapkan.',
+        message: 'Pembayaran berhasil. Pesanan sedang diproses.',
         category: NotificationCategory.payment,
         isImportant: true,
         orderId: order.id,
