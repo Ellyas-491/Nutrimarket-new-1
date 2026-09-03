@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:clev_ai/features/products/models/food_product.dart';
 import 'package:clev_ai/features/cart/services/cart_service.dart';
@@ -461,7 +461,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                         elevation: 0,
                       ),
-                      icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 20),
+                      icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 20),
                       label: Text(
                         'Tambah • Rp ${(product.price * _quantity).toStringAsFixed(0)}',
                         style: const TextStyle(

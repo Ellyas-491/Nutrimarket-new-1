@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:clev_ai/features/products/models/food_product.dart';
 import 'package:clev_ai/features/cart/services/cart_service.dart';
 import 'package:clev_ai/features/products/services/favorite_service.dart';
@@ -365,7 +365,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                                   ),
                                 ),
                                 icon: Icon(
-                                  Icons.shopping_cart_outlined,
+                                  Icons.shopping_bag_outlined,
                                   color: isDark ? Colors.white : AppColors.textPrimary,
                                   size: 19,
                                 ),
