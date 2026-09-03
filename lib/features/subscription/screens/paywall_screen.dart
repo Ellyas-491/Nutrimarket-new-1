@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:clev_ai/features/orders/services/history_service.dart';
 import 'package:clev_ai/data/local/local_storage_service.dart';
 import 'package:clev_ai/data/remote/supabase_service.dart';
@@ -78,7 +78,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               const SizedBox(height: 16),
 
               Text(
-                'HealthCare+ Premium',
+                'Nutri Market Premium',
                 style: AppTextStyles.heading1(color: Colors.white),
               ),
               const SizedBox(height: 6),

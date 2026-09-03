@@ -76,7 +76,7 @@ class HealthCarePlusApp extends StatelessWidget {
         ChangeNotifierProvider<NotificationService>.value(value: NotificationService()),
       ],
       child: MaterialApp(
-        title: 'HealthCare+ AI',
+        title: 'Nutri Market',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

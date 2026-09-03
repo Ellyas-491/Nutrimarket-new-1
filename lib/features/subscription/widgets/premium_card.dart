@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:clev_ai/core/theme/app_theme.dart';
 
 class PremiumCard extends StatelessWidget {
@@ -52,7 +52,7 @@ class PremiumCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'HealthCare+ Premium',
+                      'Nutri Market Premium',
                       style: AppTextStyles.body1(
                         color: Colors.white,
                         weight: FontWeight.bold,
