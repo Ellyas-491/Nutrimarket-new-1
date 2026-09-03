@@ -94,9 +94,11 @@ class NotificationService extends ChangeNotifier {
         styleInformation: BigTextStyleInformation(
           body,
           contentTitle: title,
-          summaryText: 'NutriMarket Update',
+          summaryText: 'Nutri Market Update',
         ),
         icon: '@mipmap/ic_launcher',
+        largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+        color: const Color(0xFF10B981),
       );
 
       const darwinDetails = DarwinNotificationDetails(
