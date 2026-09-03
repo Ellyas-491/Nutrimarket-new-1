@@ -25,41 +25,54 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToHome() async {
-    await Future.delayed(const Duration(milliseconds: 1600));
-    if (mounted) {
-      final supabaseService = SupabaseService();
-      final secureStorage = SecureStorageService();
+    // Tampilan splash screen yang cepat dan mulus (750ms)
+    await Future.delayed(const Duration(milliseconds: 750));
+    if (!mounted) return;
 
-      // Sesi login aktif jika Supabase session aktif atau token sesi telah tersimpan di secure storage
-      final isLoggedIn = supabaseService.isLoggedIn ||
-          (secureStorage.sessionToken != null && secureStorage.sessionToken!.isNotEmpty);
+    final supabaseService = SupabaseService();
+    final secureStorage = SecureStorageService();
 
-      if (isLoggedIn) {
-        if (supabaseService.isConfigured) {
-          try {
-            final profile = await supabaseService.fetchUserProfile().timeout(const Duration(milliseconds: 2500));
-            if (profile != null) {
-              HistoryService().updateUserProfile(profile, notifyUser: false);
-            }
-            await FavoriteService().syncWithSupabase().timeout(const Duration(milliseconds: 2500));
-            await OrderService().syncWithSupabase().timeout(const Duration(milliseconds: 2500));
-            await CartService().syncWithSupabase().timeout(const Duration(milliseconds: 2500));
-            await HistoryService().syncChatWithSupabase().timeout(const Duration(milliseconds: 2500));
-          } catch (e) {
-            debugPrint('[SplashScreen] Sinkronisasi cloud dilewati (mode offline): $e');
-          }
-        }
-      }
+    // Sesi login aktif jika Supabase session aktif atau token sesi telah tersimpan di secure storage
+    final isLoggedIn = supabaseService.isLoggedIn ||
+        (secureStorage.sessionToken != null && secureStorage.sessionToken!.isNotEmpty);
 
-      if (!mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => isLoggedIn ? const MainNavigationScreen() : const LoginScreen(),
-        ),
-      );
+    // Sinkronisasi data cloud dijalankan di background tanpa memblokir pembukaan aplikasi (Offline-First)
+    if (isLoggedIn && supabaseService.isConfigured) {
+      _runBackgroundCloudSync();
     }
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => isLoggedIn ? const MainNavigationScreen() : const LoginScreen(),
+      ),
+    );
+  }
+
+  void _runBackgroundCloudSync() {
+    final supabaseService = SupabaseService();
+    supabaseService.fetchUserProfile().then((profile) {
+      if (profile != null) {
+        HistoryService().updateUserProfile(profile, notifyUser: false);
+      }
+    }).catchError((e) {
+      debugPrint('[SplashScreen] Offline/error fetching profile in background: $e');
+    });
+
+    FavoriteService().syncWithSupabase().catchError((e) {
+      debugPrint('[SplashScreen] Offline/error syncing favorites: $e');
+    });
+    OrderService().syncWithSupabase().catchError((e) {
+      debugPrint('[SplashScreen] Offline/error syncing orders: $e');
+    });
+    CartService().syncWithSupabase().catchError((e) {
+      debugPrint('[SplashScreen] Offline/error syncing cart: $e');
+    });
+    HistoryService().syncChatWithSupabase().catchError((e) {
+      debugPrint('[SplashScreen] Offline/error syncing chat: $e');
+    });
   }
 
   @override

@@ -37,7 +37,8 @@ Future<void> main() async {
   // Load persisted offline orders, cart, favorites, AI chat history, user profile & products
   HistoryService().initFromLocalStorage();
   FavoriteService().initFromLocalStorage();
-  await ProductRepository().initFromSupabase();
+  ProductRepository().initFromLocalStorage();
+  ProductRepository().refreshFromSupabase();
   CartService().initFromLocalStorage();
   OrderService().initFromLocalStorage();
   HistoryService().syncWithSecureStorage();

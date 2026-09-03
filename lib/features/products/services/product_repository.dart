@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:clev_ai/features/products/models/food_product.dart';
 import 'package:clev_ai/data/local/local_storage_service.dart';
 import 'package:clev_ai/data/remote/supabase_service.dart';
@@ -18,12 +18,16 @@ class ProductRepository extends ChangeNotifier {
   List<FoodProduct> get verifiedProducts =>
       _products.where((p) => p.isVerified).toList();
 
+  void initFromLocalStorage() {
+    _loadFromLocalStorage();
+  }
+
   Future<void> initFromSupabase() async {
     // 1. Muat cache produk lokal terlebih dahulu agar UI instan saat offline
     _loadFromLocalStorage();
 
     // 2. Refresh dari Supabase Cloud jika ada koneksi
-    await refreshFromSupabase();
+    refreshFromSupabase();
   }
 
   void _loadFromLocalStorage() {
