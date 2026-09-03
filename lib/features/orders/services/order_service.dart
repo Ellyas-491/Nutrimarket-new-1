@@ -1,4 +1,4 @@
-﻿import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart';
 import 'package:clev_ai/features/notifications/models/app_notification.dart';
 import 'package:clev_ai/features/cart/models/cart_item.dart';
 import 'package:clev_ai/features/products/models/food_product.dart';
@@ -92,10 +92,18 @@ class OrderService extends ChangeNotifier {
         isImportant: true,
         orderId: order.id,
       );
-    } else if (newStatus == OrderStatus.delivered || newStatus == OrderStatus.completed) {
+    } else if (newStatus == OrderStatus.delivered) {
       NotificationService().addNotification(
-        title: 'Pesanan Telah Selesai 🍽️',
-        message: 'Pesanan #${order.id} telah sampai di tujuan. Selamat menikmati & silakan beri ulasan!',
+        title: 'Pesanan Telah Sampai 📍',
+        message: 'Kurir telah sampai di alamat Anda dengan pesanan #${order.id}. Silakan konfirmasi pesanan diterima.',
+        category: NotificationCategory.delivery,
+        isImportant: true,
+        orderId: order.id,
+      );
+    } else if (newStatus == OrderStatus.completed) {
+      NotificationService().addNotification(
+        title: 'Pesanan Selesai 🍽️',
+        message: 'Terima kasih! Pesanan #${order.id} telah selesai. Silakan beri ulasan Anda.',
         category: NotificationCategory.order,
         isImportant: true,
         orderId: order.id,
@@ -377,6 +385,11 @@ class OrderService extends ChangeNotifier {
         break;
       case OrderStatus.paid:
       case OrderStatus.confirmed:
+        nextStatus = OrderStatus.preparing;
+        title = 'Sedang Dimasak';
+        desc = 'Dapur sedang memasak dan menyiapkan hidangan Anda.';
+        newEstimate = 'Sedang dimasak oleh Chef ahli 🍳';
+        break;
       case OrderStatus.preparing:
       case OrderStatus.packed:
       case OrderStatus.readyPickup:
@@ -387,10 +400,15 @@ class OrderService extends ChangeNotifier {
         newEstimate = 'Kurir sedang dalam perjalanan mengantar 🛵';
         break;
       case OrderStatus.delivering:
+        nextStatus = OrderStatus.delivered;
+        title = 'Pesanan Telah Sampai';
+        desc = 'Kurir telah sampai di lokasi tujuan. Silakan konfirmasi pesanan diterima.';
+        newEstimate = 'Pesanan telah sampai di lokasi 📍';
+        break;
       case OrderStatus.delivered:
         nextStatus = OrderStatus.completed;
         title = 'Pesanan Diterima';
-        desc = 'Pesanan telah sampai dan diterima dengan baik.';
+        desc = 'Pesanan telah selesai dan diterima dengan baik.';
         newEstimate = 'Pesanan telah diterima';
         break;
       case OrderStatus.completed:

@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:clev_ai/features/orders/models/order.dart';
@@ -675,7 +675,46 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                           const SizedBox(width: 6),
 
                           // Primary Action depending on status
-                          if (order.status == OrderStatus.delivering || order.status == OrderStatus.preparing) ...[
+                          if (order.status == OrderStatus.delivering ||
+                              order.status == OrderStatus.pickedUp ||
+                              order.status == OrderStatus.delivered) ...[
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF059669),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                elevation: 0,
+                              ),
+                              onPressed: () async {
+                                await _orderService.completeOrder(order.id);
+                                setState(() {});
+                                if (mounted) {
+                                  AppToast.show(
+                                    context,
+                                    title: 'Pesanan Selesai 🎉',
+                                    subtitle: 'Terima kasih, pesanan Anda telah diterima!',
+                                    type: ToastType.success,
+                                  );
+                                  Future.delayed(const Duration(milliseconds: 350), () {
+                                    if (mounted) {
+                                      _showReviewModal(order);
+                                    }
+                                  });
+                                }
+                              },
+                              icon: const Icon(Icons.check_circle_outline_rounded, size: 13, color: Colors.white),
+                              label: const Text(
+                                'Terima',
+                                style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ] else if (order.status == OrderStatus.preparing ||
+                              order.status == OrderStatus.packed ||
+                              order.status == OrderStatus.readyPickup ||
+                              order.status == OrderStatus.confirmed ||
+                              order.status == OrderStatus.paid) ...[
                             ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: statusColor,
@@ -900,7 +939,9 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                               const SizedBox(height: 16),
                               _buildStepperRow(liveStep, isDark),
 
-                              if (order.status != OrderStatus.completed && order.status != OrderStatus.cancelled) ...[
+                              if (order.status == OrderStatus.delivering ||
+                                  order.status == OrderStatus.pickedUp ||
+                                  order.status == OrderStatus.delivered) ...[
                                 const SizedBox(height: 14),
                                 SizedBox(
                                   width: double.infinity,
@@ -913,15 +954,19 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                                     ),
                                     onPressed: () async {
                                       await _orderService.completeOrder(order.id);
-                                      setSheetState(() {});
-                                      setState(() {});
-                                      if (mounted) {
+                                      if (context.mounted) {
+                                        Navigator.pop(context);
                                         AppToast.show(
                                           context,
                                           title: 'Pesanan Selesai 🎉',
                                           subtitle: 'Terima kasih, pesanan Anda telah diterima!',
                                           type: ToastType.success,
                                         );
+                                        Future.delayed(const Duration(milliseconds: 350), () {
+                                          if (mounted) {
+                                            _showReviewModal(order);
+                                          }
+                                        });
                                       }
                                     },
                                     icon: const Icon(Icons.check_circle_outline_rounded, size: 18, color: Colors.white),
@@ -929,6 +974,29 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                                       'Konfirmasi Pesanan Diterima',
                                       style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
                                     ),
+                                  ),
+                                ),
+                              ] else if (order.status == OrderStatus.preparing ||
+                                  order.status == OrderStatus.packed ||
+                                  order.status == OrderStatus.readyPickup) ...[
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEA580C).withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.soup_kitchen_rounded, size: 16, color: Color(0xFFEA580C)),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Makanan sedang dimasak higienis. Tombol konfirmasi akan aktif saat pesanan diantar.',
+                                          style: TextStyle(fontSize: 11, color: Color(0xFFEA580C), fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
