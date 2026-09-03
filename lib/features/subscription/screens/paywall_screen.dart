@@ -5,6 +5,8 @@ import 'package:clev_ai/data/remote/supabase_service.dart';
 import 'package:clev_ai/core/theme/app_theme.dart';
 import 'package:clev_ai/core/widgets/app_button.dart';
 import 'package:clev_ai/core/widgets/app_toast.dart';
+import 'package:clev_ai/features/notifications/models/app_notification.dart';
+import 'package:clev_ai/features/notifications/services/notification_service.dart';
 
 class PaywallScreen extends StatefulWidget {
   const PaywallScreen({super.key});
@@ -19,7 +21,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Future<void> _activatePremium() async {
     final historyService = HistoryService();
     final updated = historyService.userProfile.copyWith(isPremium: true);
-    historyService.updateUserProfile(updated);
+    historyService.updateUserProfile(updated, notifyUser: false);
     LocalStorageService().saveUserProfile(updated.toMap());
 
     final supabase = SupabaseService();
@@ -30,6 +32,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
         debugPrint('[Paywall] Error updating premium: $e');
       }
     }
+
+    NotificationService().addNotification(
+      title: 'Nutri Market Plus Aktif 👑',
+      message: 'Langganan aktif. Nikmati diskon 10% dan AI tanpa batas.',
+      category: NotificationCategory.promo,
+      isImportant: true,
+    );
 
     setState(() {});
 
@@ -81,7 +90,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     if (confirmed == true) {
       final historyService = HistoryService();
       final updated = historyService.userProfile.copyWith(isPremium: false);
-      historyService.updateUserProfile(updated);
+      historyService.updateUserProfile(updated, notifyUser: false);
       LocalStorageService().saveUserProfile(updated.toMap());
 
       final supabase = SupabaseService();
@@ -92,6 +101,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
           debugPrint('[Paywall] Error canceling premium: $e');
         }
       }
+
+      NotificationService().addNotification(
+        title: 'Langganan Dibatalkan 👑',
+        message: 'Langganan Nutri Market Plus telah dinonaktifkan.',
+        category: NotificationCategory.promo,
+        isImportant: true,
+      );
 
       setState(() {});
 
