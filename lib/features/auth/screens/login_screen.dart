@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:clev_ai/features/notifications/models/app_notification.dart';
 import 'package:clev_ai/features/auth/models/user_profile.dart';
@@ -155,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       NotificationService().addNotification(
         title: 'Masuk dari Perangkat Baru 📱',
-        message: 'Akun Anda ($email) berhasil masuk ke sesi aplikasi NutriMarket pada ${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')} WIB via Android.',
+        message: 'Akun Anda ($email) berhasil masuk ke sesi aplikasi Nutri Market pada ${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')} WIB via Android.',
         category: NotificationCategory.security,
         isImportant: true,
       );
@@ -165,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
       AppToast.show(
         context,
         title: 'Berhasil Masuk',
-        subtitle: 'Selamat datang kembali di NutriMarket!',
+        subtitle: 'Selamat datang kembali di Nutri Market!',
         type: ToastType.success,
       );
 

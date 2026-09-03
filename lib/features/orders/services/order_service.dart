@@ -56,17 +56,6 @@ class OrderService extends ChangeNotifier {
       final allProducts = ProductRepository().verifiedProducts;
       final serverOrders = await supabaseService.fetchUserOrders(allProducts);
 
-      // Detect status changes to trigger real-time notifications
-      for (var sOrder in serverOrders) {
-        final existingIdx = _orders.indexWhere((o) => o.id == sOrder.id);
-        if (existingIdx >= 0) {
-          final oldStatus = _orders[existingIdx].status;
-          if (oldStatus != sOrder.status) {
-            _handleStatusNotification(sOrder, oldStatus, sOrder.status);
-          }
-        }
-      }
-
       _orders.clear();
       _orders.addAll(serverOrders);
       _safeNotify();
