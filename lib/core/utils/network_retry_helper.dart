@@ -51,7 +51,7 @@ class NetworkRetryHelper {
         }
       }
 
-      // Wait with exponential backoff before next attempt
+
       await Future.delayed(currentDelay);
       currentDelay *= 2;
     }

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dokumen Spesifikasi Teknis: Arsitektur Perangkat Lunak & Manajemen State</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 18mm 20mm 18mm;
+      @bottom-right {
+        content: "Halaman " counter(page);
+        font-size: 9pt;
+        color: #64748b;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+      background-color: #ffffff;
+      line-height: 1.6;
+      font-size: 10pt;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Formal Cover Page */
+    .cover-container {
+      border: 1px solid #cbd5e1;
+      padding: 36px 32px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      background: #ffffff;
+      page-break-after: always;
+    }
+    .cover-header {
+      border-bottom: 3px solid #0f766e;
+      padding-bottom: 16px;
+      margin-bottom: 28px;
+    }
+    .doc-type-label {
+      font-size: 11pt;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #0f766e;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .doc-title {
+      font-size: 20pt;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.5px;
+    }
+    .doc-subtitle {
+      font-size: 12pt;
+      color: #475569;
+      margin: 0;
+      font-weight: 400;
+    }
+    
+    /* Metadata Grid */
+    .metadata-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      margin-bottom: 30px;
+      font-size: 9.5pt;
+    }
+    .metadata-table td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+    }
+    .metadata-table td.label {
+      width: 25%;
+      font-weight: 700;
+      background-color: #f8fafc;
+      color: #334155;
+    }
+
+    .abstract-box {
+      background-color: #f8fafc;
+      border-left: 4px solid #0f766e;
+      padding: 14px 18px;
+      margin-top: 24px;
+      font-size: 9.5pt;
+      line-height: 1.6;
+    }
+    .abstract-box h4 {
+      margin: 0 0 6px 0;
+      font-size: 10.5pt;
+      color: #0f766e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Document Structure */
+    h1 {
+      font-size: 14pt;
+      font-weight: 800;
+      color: #0f172a;
+      border-bottom: 1.5px solid #0f766e;
+      padding-bottom: 6px;
+      margin-top: 28px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 11.5pt;
+      font-weight: 700;
+      color: #0f766e;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 10.5pt;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+    p {
+      margin: 0 0 10px 0;
+      text-align: justify;
+    }
+
+    /* Layer Boxes */
+    .layer-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      page-break-inside: avoid;
+    }
+    .layer-card.p-layer { border-left: 4px solid #2563eb; background: #fafcff; }
+    .layer-card.d-layer { border-left: 4px solid #059669; background: #f6fdf9; }
+    .layer-card.data-layer { border-left: 4px solid #d97706; background: #fffdfa; }
+
+    .layer-title {
+      font-weight: 700;
+      font-size: 10.5pt;
+      margin-bottom: 4px;
+    }
+
+    /* Standard Formal Tables */
+    table.formal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+    table.formal-table th {
+      background-color: #0f766e;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 10px;
+      border: 1px solid #0f766e;
+      font-size: 9pt;
+    }
+    table.formal-table td {
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      vertical-align: top;
+      line-height: 1.45;
+    }
+    table.formal-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Code Snippets */
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 4px;
+      font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+      font-size: 8.5pt;
+      line-height: 1.45;
+      overflow-x: auto;
+      margin: 8px 0 12px 0;
+      border: 1px solid #334155;
+      page-break-inside: avoid;
+    }
+    code {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 8.5pt;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 4px;
+      border-radius: 3px;
+      border: 1px solid #e2e8f0;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border: none;
+    }
+    
+    .kw { color: #f43f5e; font-weight: 600; }
+    .type { color: #38bdf8; font-weight: 600; }
+    .fn { color: #34d399; }
+    .str { color: #fde047; }
+    .comm { color: #94a3b8; font-style: italic; }
+
+    /* Numbered Callout */
+    .note-box {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid #16a34a;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 9pt;
+      margin: 10px 0;
+      page-break-inside: avoid;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .toc {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 9.5pt;
+    }
+    .toc-dots {
+      flex: 1;
+      border-bottom: 1px dotted #94a3b8;
+      margin: 0 8px 4px 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="cover-container">
+    <div class="cover-header">
+      <div class="doc-type-label">Spesifikasi Rekayasa Perangkat Lunak & Arsitektur</div>
+      <h1 class="doc-title">Arsitektur Perangkat Lunak, Pola Manajemen State, dan Penanganan Siklus UI</h1>
+      <p class="doc-subtitle">Studi Implementasi pada Aplikasi NutriMarket (clev_ai) Berbasis Flutter & Provider</p>
+    </div>
+
+    <table class="metadata-table">
+      <tr>
+        <td class="label">Nama Dokumen</td>
+        <td>Dokumen Arsitektur & State Management NutriMarket</td>
+      </tr>
+      <tr>
+        <td class="label">Identifikasi Proyek</td>
+        <td>clev_ai / NutriMarket Mobile App</td>
+      </tr>
+      <tr>
+        <td class="label">Platform Target</td>
+        <td>Mobile (Android SDK 34+ / iOS)</td>
+      </tr>
+      <tr>
+        <td class="label">Teknologi Inti</td>
+        <td>Flutter SDK &bull; Provider 6.1.2 &bull; Supabase Backend &bull; Clean Architecture</td>
+      </tr>
+      <tr>
+        <td class="label">Versi Rilis</td>
+        <td>v1.0.0+1 (Production Ready)</td>
+      </tr>
+      <tr>
+        <td class="label">Klasifikasi Dokumen</td>
+        <td>Dokumentasi Teknis & Panduan Standar Pengujian</td>
+      </tr>
+    </table>
+
+    <div class="abstract-box">
+      <h4>Ringkasan Eksekutif (Abstract)</h4>
+      Dokumen ini menyajikan spesifikasi arsitektur komprehensif dari sistem aplikasi mobile <strong>NutriMarket</strong>. Pembahasan mencakup dekomposisi tiga lapis arsitektur (Presentation Layer, Domain/Business Logic Layer, dan Data Layer), mekanisme <em>State Management</em> berbasis pola <em>Observer</em> menggunakan <code>Provider</code> dan <code>ChangeNotifier</code>, penanganan deterministik 5 kondisi UI (Initial, Loading, Empty, Success, Error), rincian teknis 9 service/repository, serta panduan pengujian visual tangkapan layar antarmuka.
+    </div>
+  </div>
+
+  <!-- ==================== DAFTAR ISI ==================== -->
+  <h1>Daftar Isi</h1>
+  <div class="toc">
+    <div class="toc-item"><span><strong>1.0 Pendahuluan & Dekomposisi Tiga Lapis Arsitektur (3-Tier Layering)</strong></span><span class="toc-dots"></span><span>Hal. 2</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>1.1 Presentation Layer (Antarmuka & Komponen Visual)</span><span class="toc-dots"></span><span>Hal. 2</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>1.2 Domain / Business Logic Layer (Aturan Bisnis & Service)</span><span class="toc-dots"></span><span>Hal. 2</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>1.3 Data Layer (Model, Local Storage Cache, & Supabase Cloud)</span><span class="toc-dots"></span><span>Hal. 2</span></div>
+    
+    <div class="toc-item"><span><strong>2.0 Pola Manajemen State Berbasis Provider & ChangeNotifier</strong></span><span class="toc-dots"></span><span>Hal. 3</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>2.1 Definisi & Manfaat Pola Provider</span><span class="toc-dots"></span><span>Hal. 3</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>2.2 Registrasi Sentral MultiProvider pada Root Aplikasi</span><span class="toc-dots"></span><span>Hal. 3</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>2.3 Resolusi Context: context.watch, context.read, dan Consumer</span><span class="toc-dots"></span><span>Hal. 3</span></div>
+
+    <div class="toc-item"><span><strong>3.0 Matriks Siklus Status Antarmuka Pengguna (UI State Lifecycle)</strong></span><span class="toc-dots"></span><span>Hal. 4</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>3.1 Taksonomi 5 Kondisi State (Initial, Loading, Empty, Success, Error)</span><span class="toc-dots"></span><span>Hal. 4</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>3.2 Alur Pemulihan Kesalahan & Penanganan Exception Jaringan</span><span class="toc-dots"></span><span>Hal. 4</span></div>
+
+    <div class="toc-item"><span><strong>4.0 Spesifikasi Teknis Katalog Service & Repository</strong></span><span class="toc-dots"></span><span>Hal. 5</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>4.1 Tabel Komparasi 9 Provider di Dalam Sistem</span><span class="toc-dots"></span><span>Hal. 5</span></div>
+
+    <div class="toc-item"><span><strong>5.0 Studi Kasus Implementasi Kode Sumber Nyata</strong></span><span class="toc-dots"></span><span>Hal. 6</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>5.1 Implementasi Reaktif Katalog Produk (HomeScreen)</span><span class="toc-dots"></span><span>Hal. 6</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>5.2 Implementasi Autentikasi & Exception Handling (LoginScreen)</span><span class="toc-dots"></span><span>Hal. 6</span></div>
+    <div class="toc-item" style="padding-left: 15px;"><span>5.3 Implementasi Sinkronisasi Real-Time Keranjang Belanja (CartService)</span><span class="toc-dots"></span><span>Hal. 6</span></div>
+
+    <div class="toc-item"><span><strong>6.0 Panduan Pengujian & Checklist Screenshot Antarmuka (APK Verification)</strong></span><span class="toc-dots"></span><span>Hal. 7</span></div>
+  </div>
+
+  <!-- ==================== BAB 1 ==================== -->
+  <h1>1.0 Pendahuluan & Dekomposisi Tiga Lapis Arsitektur</h1>
+  <p>
+    Arsitektur aplikasi NutriMarket dirancang dengan mematuhi prinsip <em>Separation of Concerns (SoC)</em> dan <em>Single Responsibility Principle (SRP)</em>. Kode dibagi secara modular ke dalam 3 (tiga) tingkatan independen:
+  </p>
+
+  <div class="layer-card p-layer">
+    <div class="layer-title" style="color: #1d4ed8;">1.1 Presentation Layer (Lapisan Presentasi / UI)</div>
+    <p style="margin: 0; font-size: 9pt;">
+      <strong>Direktori:</strong> <code>lib/features/*/screens/</code> dan <code>lib/features/*/widgets/</code><br>
+      <strong>Peran:</strong> Bertanggung jawab penuh atas penampilan antarmuka visual, rendering tata letak, komponen formulir, animasi transisi, dan visualisasi kondisi status. Layar tidak memuat logika bisnis langsung; setiap aksi pengguna (misal: penekanan tombol) didelegasikan langsung ke lapisan domain.
+    </p>
+  </div>
+
+  <div class="layer-card d-layer">
+    <div class="layer-title" style="color: #047857;">1.2 Domain / Business Logic Layer (Lapisan Logika Bisnis)</div>
+    <p style="margin: 0; font-size: 9pt;">
+      <strong>Direktori:</strong> <code>lib/features/*/services/</code> dan <code>product_repository.dart</code><br>
+      <strong>Peran:</strong> Merupakan inti dari aturan bisnis sistem. Mengatur mutasi state, validasi kuota pesanan, perhitungan diskon kupon, filter nutrisi, sinkronisasi offline-first, dan interaksi AI Assistant. Mewarisi <code>ChangeNotifier</code> untuk memicu pembaruan antarmuka via <code>notifyListeners()</code>.
+    </p>
+  </div>
+
+  <div class="layer-card data-layer">
+    <div class="layer-title" style="color: #b45309;">1.3 Data Layer (Lapisan Akses Data & Penyimpanan)</div>
+    <p style="margin: 0; font-size: 9pt;">
+      <strong>Direktori:</strong> <code>lib/data/remote/</code>, <code>lib/data/local/</code>, dan <code>lib/features/*/models/</code><br>
+      <strong>Peran:</strong> Menangani pertukaran data mentah. Mengelola API Supabase (PostgreSQL & Auth), enkripsi data sensitif (FlutterSecureStorage), penyimpanan cache lokal (SharedPreferences), serta serialisasi JSON/Map ke objek model Dart.
+    </p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== BAB 2 ==================== -->
+  <h1>2.0 Pola Manajemen State Berbasis Provider & ChangeNotifier</h1>
+  
+  <h2>2.1 Definisi & Manfaat Pola Provider</h2>
+  <p>
+    Dalam arsitektur Flutter, <strong>Provider</strong> bertindak sebagai lapisan perekat antara Domain Layer dan Presentation Layer. Provider mengimplementasikan pola <em>Observer</em>, di mana State Holder bertindak sebagai <em>Subject</em> dan Widget bertindak sebagai <em>Observer</em>.
+  </p>
+  <div class="note-box">
+    <strong>Keunggulan Arsitektur:</strong> Menghilangkan kebutuhan <em>prop drilling</em> (pengoperan parameter berlapis antar widget), meminimalkan konsumsi memori dengan hanya me-rebuild sub-tree widget yang terdampak, serta menyederhanakan pengujian unit terisolasi (isolated unit testing).
+  </div>
+
+  <h2>2.2 Registrasi Sentral MultiProvider pada Root Aplikasi</h2>
+  <p>
+    Seluruh penyedia status diinisialisasi pada tingkat tertinggi pohon widget (root) di file <code>lib/main.dart</code> (baris 67–78), memastikan ketersediaan akses status secara global di seluruh rute layar:
+  </p>
+  <pre><code><span class="comm">// lib/main.dart</span>
+<span class="kw">class</span> <span class="type">HealthCarePlusApp</span> <span class="kw">extends</span> <span class="type">StatelessWidget</span> {
+  <span class="kw">const</span> <span class="type">HealthCarePlusApp</span>({<span class="kw">super</span>.key});
+
+  <span class="kw">@override</span>
+  <span class="type">Widget</span> <span class="fn">build</span>(<span class="type">BuildContext</span> context) {
+    <span class="kw">return</span> <span class="type">MultiProvider</span>(
+      providers: [
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">SupabaseService</span>&gt;.value(value: <span class="type">SupabaseService</span>()),
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">SecureStorageService</span>&gt;.value(value: <span class="type">SecureStorageService</span>()),
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">OfflineSyncService</span>&gt;.value(value: <span class="type">OfflineSyncService</span>()),
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">ProductRepository</span>&gt;.value(value: <span class="type">ProductRepository</span>()),
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">HistoryService</span>&gt;.value(value: <span class="type">HistoryService</span>()),
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">CartService</span>&gt;.value(value: <span class="type">CartService</span>()),
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">OrderService</span>&gt;.value(value: <span class="type">OrderService</span>()),
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">FavoriteService</span>&gt;.value(value: <span class="type">FavoriteService</span>()),
+        <span class="type">ChangeNotifierProvider</span>&lt;<span class="type">NotificationService</span>&gt;.value(value: <span class="type">NotificationService</span>()),
+      ],
+      child: <span class="kw">const</span> <span class="type">MaterialApp</span>(home: <span class="type">SplashScreen</span>()),
+    );
+  }
+}</code></pre>
+
+  <h2>2.3 Resolusi Context: Watch, Read, dan Consumer</h2>
+  <table class="formal-table">
+    <thead>
+      <tr>
+        <th style="width: 25%;">Sintaks Pemanggilan</th>
+        <th style="width: 35%;">Karakteristik Eksekusi</th>
+        <th style="width: 40%;">Skenario Penggunaan yang Tepat</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>context.watch&lt;T&gt;()</code></td>
+        <td>Mendaftarkan widget sebagai pendengar aktif. Widget akan me-rebuild otomatis saat state berubah.</td>
+        <td>Merender teks dinamis, jumlah badge keranjang, dan list data produk.</td>
+      </tr>
+      <tr>
+        <td><code>context.read&lt;T&gt;()</code></td>
+        <td>Mengambil referensi instance service tanpa mendaftarkan widget sebagai pendengar (no rebuild).</td>
+        <td>Didalam fungsi callback <code>onPressed</code>, trigger tombol login, atau aksi klik.</td>
+      </tr>
+      <tr>
+        <td><code>Consumer&lt;T&gt;</code></td>
+        <td>Membatasi area rebuild hanya pada closure builder internal widget tertentu.</td>
+        <td>Optimasi performa pada pohon widget yang kompleks dan berukuran besar.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== BAB 3 ==================== -->
+  <h1>3.0 Matriks Siklus Status Antarmuka Pengguna (UI State Lifecycle)</h1>
+  
+  <h2>3.1 Taksonomi 5 Kondisi State Deterministik</h2>
+  <p>
+    Setiap antarmuka fungsional pada aplikasi NutriMarket menangani 5 kondisi status diskrit untuk menjamin keterandalan interaksi pengguna:
+  </p>
+
+  <table class="formal-table">
+    <thead>
+      <tr>
+        <th style="width: 15%;">State</th>
+        <th style="width: 30%;">Indikasi Sistem</th>
+        <th style="width: 25%;">Manifestasi Visual UI</th>
+        <th style="width: 30%;">Penanganan Teknis</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. INITIAL</strong></td>
+        <td>Kondisi awal saat widget dipasang pertama kali pada tree.</td>
+        <td>Form input kosong, status placeholder netral.</td>
+        <td>Inisialisasi controller, muat data awal dari cache lokal via <code>initState()</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>2. LOADING</strong></td>
+        <td>Proses asinkron sedang berjalan (Network I/O atau Database fetch).</td>
+        <td><code>CircularProgressIndicator</code> atau Skeleton Loading.</td>
+        <td>Blokir interaksi duplikat dengan menonaktifkan tombol submit selama `isLoading == true`.</td>
+      </tr>
+      <tr>
+        <td><strong>3. EMPTY</strong></td>
+        <td>Operasi fetch berhasil dieksekusi, namun himpunan data bernilai 0.</td>
+        <td>Ilustrasi grafis, pesan ramah, dan tombol aksi bantuan.</td>
+        <td>Percabangan <code>if (items.isEmpty)</code> mengalihkan render ke widget informasi kosong.</td>
+      </tr>
+      <tr>
+        <td><strong>4. SUCCESS</strong></td>
+        <td>Operasi komputasi/fetch data selesai dengan status valid.</td>
+        <td>Rendering daftar kartu (Card Grid), Toast hijau, dialog sukses.</td>
+        <td>Pembaruan model lokal, navigasi halaman otomatis, atau reset status form.</td>
+      </tr>
+      <tr>
+        <td><strong>5. ERROR</strong></td>
+        <td>Terjadi kegagalan jaringan, timeout, atau exception kredensial.</td>
+        <td>Toast merah (AppToast), indikator status gagal, tombol Coba Lagi.</td>
+        <td>Blok <code>try-catch</code> menangkap exception, memetakan ke pesan ramah, dan memulihkan state.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3.2 Alur Pemulihan Kesalahan (Error Recovery Flow)</h2>
+  <p>
+    Aplikasi mengadopsi strategi <em>Graceful Degradation</em> dan <em>Offline Fallback</em>: ketika komunikasi jaringan ke Supabase Cloud gagal, sistem tidak melakukan crash, melainkan secara mulus memuat data dari Local Storage cache dan menampilkan notifikasi peringatan non-intrusif kepada pengguna.
+  </p>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== BAB 4 ==================== -->
+  <h1>4.0 Spesifikasi Teknis Katalog Service & Repository</h1>
+  <p>
+    Berikut adalah spesifikasi teknis lengkap dari 9 komponen pengelola status yang terdapat di dalam sistem:
+  </p>
+
+  <table class="formal-table">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Komponen</th>
+        <th style="width: 25%;">Lokasi File</th>
+        <th style="width: 25%;">State Utama yang Dikelola</th>
+        <th style="width: 30%;">Integrasi Data Layer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>ProductRepository</strong></td>
+        <td><code>lib/features/products/services/</code></td>
+        <td><code>_products</code>, <code>_isLoading</code>, kategori filter.</td>
+        <td>SharedPreferences (Local cache) & Supabase REST API.</td>
+      </tr>
+      <tr>
+        <td><strong>CartService</strong></td>
+        <td><code>lib/features/cart/services/</code></td>
+        <td><code>_items</code>, <code>itemCount</code>, <code>subtotal</code>, <code>total</code>.</td>
+        <td>Local Storage persistence & Supabase user cart sync.</td>
+      </tr>
+      <tr>
+        <td><strong>OrderService</strong></td>
+        <td><code>lib/features/orders/services/</code></td>
+        <td><code>_orders</code>, <code>activeOrders</code>, <code>completedOrders</code>.</td>
+        <td>Penyimpanan riwayat transaksi offline & Supabase cloud orders.</td>
+      </tr>
+      <tr>
+        <td><strong>FavoriteService</strong></td>
+        <td><code>lib/features/products/services/</code></td>
+        <td><code>_favoriteIds</code>, status wishlist.</td>
+        <td>Local cache wishlist & Supabase favorites table.</td>
+      </tr>
+      <tr>
+        <td><strong>HistoryService</strong></td>
+        <td><code>lib/features/orders/services/</code></td>
+        <td><code>userProfile</code>, riwayat AI Chat.</td>
+        <td>Secure storage data profil & Supabase chat sessions.</td>
+      </tr>
+      <tr>
+        <td><strong>SupabaseService</strong></td>
+        <td><code>lib/data/remote/</code></td>
+        <td><code>currentUser</code>, status login, token sesi.</td>
+        <td>PostgreSQL Cloud, Supabase GoTrue Auth API.</td>
+      </tr>
+      <tr>
+        <td><strong>OfflineSyncService</strong></td>
+        <td><code>lib/data/local/</code></td>
+        <td>Antrean sync transaksi offline.</td>
+        <td>ConnectivityPlus & Local sync queue dispatcher.</td>
+      </tr>
+      <tr>
+        <td><strong>SecureStorageService</strong></td>
+        <td><code>lib/data/local/</code></td>
+        <td>Auth token, user credential terenkripsi.</td>
+        <td>Android Keystore / EncryptedSharedPreferences.</td>
+      </tr>
+      <tr>
+        <td><strong>NotificationService</strong></td>
+        <td><code>lib/features/notifications/services/</code></td>
+        <td><code>_notifications</code>, status unread.</td>
+        <td>FlutterLocalNotificationsPlugin sistem OS.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== BAB 5 ==================== -->
+  <h1>5.0 Studi Kasus Implementasi Kode Sumber Nyata</h1>
+
+  <h2>5.1 Implementasi Reaktif Katalog Produk (HomeScreen)</h2>
+  <p>
+    Potongan kode dari <code>lib/features/products/screens/home_screen.dart</code> (baris 106–157) menunjukkan pembacaan state multi-kondisi:
+  </p>
+  <pre><code><span class="comm">// Pembacaan state secara reaktif dari Provider</span>
+<span class="kw">final</span> productRepo = context.<span class="fn">watch</span>&lt;<span class="type">ProductRepository</span>&gt;();
+<span class="kw">final</span> products = productRepo.products;
+
+<span class="comm">// 1. Kondisi LOADING: Menampilkan spinner saat pertama kali fetch</span>
+<span class="kw">if</span> (productRepo.isLoading &amp;&amp; products.isEmpty)
+  <span class="kw">const</span> <span class="type">Center</span>(
+    child: <span class="type">CircularProgressIndicator</span>(color: AppColors.primary),
+  )
+
+<span class="comm">// 2. Kondisi EMPTY: Menampilkan visual kosong jika tidak ada produk</span>
+<span class="kw">else if</span> (products.isEmpty)
+  <span class="type">Container</span>(
+    alignment: Alignment.center,
+    child: <span class="type">Column</span>(
+      children: [
+        <span class="type">Icon</span>(Icons.inventory_2_outlined, size: <span class="fn">48</span>),
+        <span class="type">Text</span>(<span class="str">'Belum ada produk di kategori ini'</span>),
+      ],
+    ),
+  )
+
+<span class="comm">// 3. Kondisi SUCCESS: Merender grid produk aktif</span>
+<span class="kw">else</span>
+  <span class="type">GridView</span>.<span class="fn">builder</span>(
+    itemCount: products.length,
+    itemBuilder: (context, index) =&gt; <span class="type">FoodCard</span>(product: products[index]),
+  );</code></pre>
+
+  <h2>5.2 Implementasi Autentikasi & Exception Handling (LoginScreen)</h2>
+  <p>
+    Potongan kode dari <code>lib/features/auth/screens/login_screen.dart</code> (baris 72–195) menunjukkan siklus transisi dari Initial &rarr; Loading &rarr; Success atau Error:
+  </p>
+  <pre><code><span class="comm">// 1. Transisi ke Status LOADING</span>
+<span class="fn">setState</span>(() =&gt; _isLoading = <span class="kw">true</span>);
+
+<span class="kw">try</span> {
+  <span class="comm">// 2. Komunikasi ke Domain Service Layer</span>
+  <span class="kw">final</span> supabaseService = Provider.<span class="fn">of</span>&lt;<span class="type">SupabaseService</span>&gt;(context, listen: <span class="kw">false</span>);
+  <span class="kw">final</span> response = <span class="kw">await</span> supabaseService.<span class="fn">signIn</span>(email: email, password: password);
+
+  <span class="comm">// 3. Status SUCCESS: Umpan balik positif dan navigasi</span>
+  AppToast.<span class="fn">show</span>(context, title: <span class="str">'Berhasil Masuk'</span>, type: ToastType.success);
+  Navigator.<span class="fn">pushReplacementNamed</span>(context, <span class="str">'/home'</span>);
+} <span class="kw">catch</span> (e) {
+  <span class="comm">// 4. Status ERROR: Penangkapan error dan umpan balik pengguna</span>
+  AppToast.<span class="fn">show</span>(
+    context,
+    title: <span class="str">'Gagal Masuk'</span>,
+    subtitle: <span class="str">'Email atau kata sandi tidak sesuai. Silakan periksa kembali.'</span>,
+    type: ToastType.error,
+  );
+} <span class="kw">finally</span> {
+  <span class="comm">// 5. Pemulihan status loading</span>
+  <span class="kw">if</span> (mounted) <span class="fn">setState</span>(() =&gt; _isLoading = <span class="kw">false</span>);
+}</code></pre>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== BAB 6 ==================== -->
+  <h1>6.0 Panduan Pengujian & Checklist Screenshot Antarmuka</h1>
+  <p>
+    Untuk keperluan laporan pengujian mutu perangkat lunak (Quality Assurance) dan verifikasi teknis, berikut adalah checklist tangkapan layar (screenshot) yang wajib diambil dari APK:
+  </p>
+
+  <table class="formal-table">
+    <thead>
+      <tr>
+        <th style="width: 10%;">No.</th>
+        <th style="width: 22%;">Target Layar</th>
+        <th style="width: 25%;">Kondisi / State yang Diverifikasi</th>
+        <th style="width: 43%;">Langkah Teknis untuk Menampilkan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1</strong></td>
+        <td><strong>HomeScreen</strong></td>
+        <td>Success State & Presentation Layer</td>
+        <td>Buka halaman utama aplikasi saat katalog produk dan banner gizi berhasil dimuat.</td>
+      </tr>
+      <tr>
+        <td><strong>2</strong></td>
+        <td><strong>CartScreen</strong></td>
+        <td>Empty State (Keranjang Kosong)</td>
+        <td>Buka keranjang belanja saat belum ada item yang ditambahkan (tampilan ilustrasi kosong).</td>
+      </tr>
+      <tr>
+        <td><strong>3</strong></td>
+        <td><strong>CartScreen</strong></td>
+        <td>Success State & Real-time Calc</td>
+        <td>Tambahkan 2–3 produk makanan, periksa perhitungan subtotal, voucher, dan ongkos kirim.</td>
+      </tr>
+      <tr>
+        <td><strong>4</strong></td>
+        <td><strong>DiscoverScreen</strong></td>
+        <td>Empty State (Hasil Filter 0)</td>
+        <td>Lakukan pencarian produk dengan kata kunci sembarang (misal: <code>"zzzz"</code>) hingga muncul teks <em>'Belum ada produk'</em>.</td>
+      </tr>
+      <tr>
+        <td><strong>5</strong></td>
+        <td><strong>LoginScreen</strong></td>
+        <td>Error State & Validasi Form</td>
+        <td>Masukkan email atau kata sandi yang salah pada form login, tangkap pesan banner Toast merah.</td>
+      </tr>
+      <tr>
+        <td><strong>6</strong></td>
+        <td><strong>LoginScreen</strong></td>
+        <td>Loading State (Proses Masuk)</td>
+        <td>Tekan tombol masuk saat spinner <code>CircularProgressIndicator</code> sedang berputar.</td>
+      </tr>
+      <tr>
+        <td><strong>7</strong></td>
+        <td><strong>ProductDetailScreen</strong></td>
+        <td>Presentation & Macro Nutrisi</td>
+        <td>Pilih salah satu produk untuk menampilkan uraian kalori, protein, lemak, dan indeks glikemik.</td>
+      </tr>
+      <tr>
+        <td><strong>8</strong></td>
+        <td><strong>AIChatScreen</strong></td>
+        <td>Domain Logic & Interaksi AI</td>
+        <td>Buka sesi konsultasi AI Assistant dan kirim pertanyaan gizi makanan sehat.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 30px; padding: 12px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 8.5pt; color: #475569; text-align: center;">
+    <strong>Dokumen Spesifikasi Teknis NutriMarket (clev_ai)</strong> &bull; Disusun sebagai dokumentasi arsitektur standar industri dan pedoman verifikasi sistem perangkat lunak mobile.
+  </div>
+
+</body>
+</html>
