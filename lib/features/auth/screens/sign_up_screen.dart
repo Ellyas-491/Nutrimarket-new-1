@@ -361,21 +361,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  void _handleSocialRegister(String provider) {
+  Future<void> _handleSocialRegister(String provider) async {
+    final supabase = Provider.of<SupabaseService>(context, listen: false);
     AppToast.show(
       context,
       title: 'Mendaftar Akun',
       subtitle: 'Mendaftar dengan $provider...',
       type: ToastType.info,
     );
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-        (route) => false,
-      );
-    });
+
+    if (provider == 'Google' && supabase.isConfigured) {
+      try {
+        await supabase.signInWithGoogle();
+        return;
+      } catch (e) {
+        debugPrint('[SignUpScreen] Google OAuth error: $e');
+        if (!mounted) return;
+        AppToast.show(
+          context,
+          title: 'Google Sign-In',
+          subtitle: 'Gagal mendaftar akun Google. Beralih ke pendaftaran lokal...',
+          type: ToastType.warning,
+        );
+      }
+    }
+
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+      (route) => false,
+    );
   }
 
   @override

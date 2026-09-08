@@ -24,4 +24,5 @@
 
 # Suppress ProGuard Warnings for unused Android architecture components
 -dontwarn com.google.android.gms.**
+-dontwarn com.google.android.play.core.**
 -dontwarn androidx.**
