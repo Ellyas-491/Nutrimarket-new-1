@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:clev_ai/core/config/app_config.dart';
 import 'package:clev_ai/features/cart/models/cart_item.dart';
@@ -166,28 +166,6 @@ class SupabaseService extends ChangeNotifier {
       }
     }
     notifyListeners();
-  }
-
-  /// Sign In with Google via Supabase OAuth
-  Future<bool> signInWithGoogle() async {
-    if (!_isConfigured || client == null) {
-      throw const AuthException(
-        'Supabase belum terkonfigurasi. Silakan masukkan SUPABASE_URL dan SUPABASE_ANON_KEY di file .env Anda.',
-      );
-    }
-
-    try {
-      final success = await client!.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: kIsWeb ? null : 'io.supabase.nutrimarket://login-callback/',
-      );
-      notifyListeners();
-      return success;
-    } on AuthException catch (e) {
-      throw _parseAuthError(e);
-    } catch (e) {
-      throw AuthException('Gagal masuk dengan Google: ${e.toString()}');
-    }
   }
 
   // ===========================================================================

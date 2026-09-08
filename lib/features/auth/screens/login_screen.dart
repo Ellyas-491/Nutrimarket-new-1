@@ -344,37 +344,20 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _handleSocialLogin(String provider) async {
-    final supabase = Provider.of<SupabaseService>(context, listen: false);
+  void _handleSocialLogin(String provider) {
     AppToast.show(
       context,
       title: 'Menghubungkan Akun',
       subtitle: 'Menghubungkan akun dengan $provider...',
       type: ToastType.info,
     );
-
-    if (provider == 'Google' && supabase.isConfigured) {
-      try {
-        await supabase.signInWithGoogle();
-        return;
-      } catch (e) {
-        debugPrint('[LoginScreen] Google OAuth error: $e');
-        if (!mounted) return;
-        AppToast.show(
-          context,
-          title: 'Google Sign-In',
-          subtitle: 'Gagal menghubungkan akun Google. Beralih ke sesi lokal...',
-          type: ToastType.warning,
-        );
-      }
-    }
-
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-    );
+    Future.delayed(const Duration(milliseconds: 700), () {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+      );
+    });
   }
 
   @override
